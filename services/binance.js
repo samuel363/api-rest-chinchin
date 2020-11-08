@@ -54,9 +54,12 @@ function httpRequest(params) {
 
 }
 
+console.log("Loading Data! ...");
+console.log("...");
 httpRequest(options)
 .then(function(binanceData) {
-  console.log(binanceData);
+  //console.log(binanceData);
+  console.log("binanceData Loaded Success!...");
   data=binanceData;
 })
 .catch(function(err) {
