@@ -1,157 +1,234 @@
 'use strict'
 
-var binance = require('../services/binance');
+const ObjectsToCsv = require('objects-to-csv');
 
-var coinBS = {
-    "s": "BSUSDT",
-    "st": "TRADING",
-    "b": "BS",
-    "q": "USDT",
-    "qn": "Bolivares",
-    "l": 0.000001
+const logger = require('./logs');
+const fs = require("fs");
+
+//var binance = require('../services/binance');
+var services = require('../services/achs');
+
+const writeToCsv = async (fileName,data) => {
+    const csv = new ObjectsToCsv(data);
+  // Save to file:
+    await csv.toDisk('./reports/'+fileName);
 }
 
-var coinPTR = {
-    "s": "PTRUSDT",
-    "st": "TRADING",
-    "b": "PTR",
-    "q": "USDT",
-    "qn": "Petros",
-    "l": 60
-}
-
-function filterData (data,coinsCodes){
-    if (data==undefined) return [];
-    var flagBS = false;
-    var flagPTR = false;
-    var result = data.filter(f=>{
-        if( f.q == "USDT" && coinsCodes.indexOf(f.b)!= -1){
-            if (f.b=="BS") flagBS = true;
-            if (f.b=="PTR") flagPTR = true;
-            return f;
-        }
-    });
-
-    if(!flagBS && coinsCodes.indexOf("BS")!= -1) result.push(coinBS);
-    if(!flagPTR && coinsCodes.indexOf("PTR")!= -1) result.push(coinPTR);
-
-    return result;
-}
-function calculate (dataCoins,amount){
-
-    var result=[];
-    dataCoins.filter(f=>{
-        result.push(
-            {
-                "s": f.s,
-                "st": f.st,
-                "b": f.b,
-                "q": f.q,
-                "qn": f.qn,
-                "price": f.l * amount,
-            }
-        );
-    });
-
-    return result;
-}
 
 var controller = {
     home: function (req,res){
         return  res.status(200).send(`
-            <h1>Bienvenidos al REST API </h1>
-            <p>
-                Los servicios disponibles son los siguientes:
-            </p>
+            <h1> Bienvenidos al REST API </h1>
             <ul>
-                <li>/api/get-coins-usd</li>
-                <li>
-                    /api/get-amount-change
-                    <br>
-                    parametros:
-                    <ul>
-                        <ol>
-                            amount 
-                        </ol>
-                        <ol>
-                            coinsCode 
-                        </ol>
-                    </ul>
-                </li>
+                <li> /api/run-service               </li>
+                <li> /api/list-files                     </li>
+                <li> /api/download?date=dd-mm-yyyy  </li>
             </ul>
         `);
     },
-    saveProject: function(req, res){
-        //var exchange = new Exchange();
-        const exchange = {
-            id: db.length + 1,
-            "s": "BNBBTC",
-            "st": "TRADING",
-            "b": "BNB",
-            "q": "BTC",
-            "ba": "",
-            "qa": "฿",
-            "i": 0.01,
-            "ts": 1e-7,
-            "an": "BNB",
-            "qn": "Bitcoin",
-            "o": 0.0018662,
-            "h": 0.0019256,
-            "l": 0.0018322,
-            "c": 0.0018589,
-            "v": 929177.41,
-            "qv": 1742.86553,
-            "y": 0,
-            "as": 929177.41,
-            "pm": "BTC",
-            "pn": "BTC",
-            "cs": 152665937,
-            "tags": //[
-                "pos",
-                //"mining-zone"
-            //],
-            "pom": false,
-            "pomt": null,
-            "etf": false
-        };
+    saveCsvFile: function(req, res){
 
-        db.push(exchange);
+        binance()
+        .then(function(binanceData) {
+            //console.log(binanceData);
+            console.log("binanceData Loaded Success!...");
 
-        return res.status(200).send({
-            message: "saveProject"
-        });
-    },
-    getDataUSD: function(req, res){
-        var coinsCodes=["BTC","ETH","DASH","PTR","BS","EUR"];
+            writeToCsv(
+                'testttt.csv',
+                binanceData.data
+            )
+            .then(function(binanceData) {
+                console.log("writeFile Success!...");
+                return res.status(200).send({
+                    message: "success_write_file",
+                });
+            })
+            .catch(function(err) {
+                console.log(err);
+                return res.status(200).send({
+                    message: "error_write_file",
+                });
+            });
 
-        return res.status(200).send({
-            message: "success",
-            data: filterData(binance().data,coinsCodes)
+        })
+        .catch(function(err) {
+            console.log(err);
+            return res.status(200).send({
+                message: "error_load_data",
+            });
         });
 
     },
-    getAmountChange: function(req, res){
-            
-        if(req.query.amount==undefined){
-            return res.status(404).send({
-                message: "error",
-                data: "param: 'amount' is required"
-            });
-        }
-        if(req.query.coinsCode==undefined){
-            return res.status(404).send({
-                message: "error",
-                data: "param: 'coinsCode' is required"
-            });
-        }
+    download: (req, res) => res.download('./reports/'+req.query.date+'.csv'),
+    sendMail: function(req, res){
 
-        var dataCoins = filterData(binance().data,req.query.coinsCode);
+        logger.warn("running service: sendMail( Date="+"12/12/2012"+" ) ...");
+
+        services.report("12/12/2012")
+        .then(function(result) {
+            logger.info("service_success: sendMail");
+            console.log("service_success: sendMail");
+
+            return res.status(200).send({
+                message: "send_mail_success",
+            });
+        })
+        .catch(function(err) {
+            logger.info("service_error: sendMail #ERROR: "+err);
+
+            console.log(err);
+            console.log("error_send_mail");
+
+            return res.status(502).send({
+                message: "error_send_mail",
+            });
+        });
+    },
+    test: function(req, res){
+        logger.warn("service_success: test");
+        services.test()
+        .then(function(result) {
+            logger.info("service_success: test_success");
+            return res.status(200).send({
+                message: "success",
+                data: result
+            });
+        })
+        .catch(function(err) {
+            console.log(err);
+            logger.error("service_error: test_error");
+
+            return res.status(502).send({
+                message: "error_test",
+            });
+        });
+
+    },
+    test2: function(req, res){
+        console.log(err);
+    },
+    testPost: function(req, res){
+
+        services.test_post()
+        .then(function(binanceData) {
+            return res.status(200).send({
+                message: "success",
+                data: binanceData
+            });
+            })
+        .catch(function(err) {
+            console.log(err);
+            return res.status(502).send({
+                message: "error_test",
+            });
+        });
+
+    },
+    runService: (req, res) => {
+
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate( today.getDate() - 1);
+
+        const todayString = today.getDate() + '-' +
+                        (today.getMonth()+1) + '-' +
+                        today.getFullYear();
+        const yesterdayString = yesterday.getDate() + '-' +
+                            (yesterday.getMonth()+1) + '-' +
+                            yesterday.getFullYear();
+
+        //GET_TOKEN
+        // services.getToken()
+        // .then(function(tokenResult) {
+        //     logger.info("service_success: getToken");
+        //     console.log("service_success: getToken");
+
+            //GET_DATA
+            services.test()
+            //services.getData(tokenResult,todayString,yesterdayString)
+            .then(function(data) {
+                logger.info("service_success: getData");
+                console.log("service_success: getData");
+
+                //WRITE_CSV
+                writeToCsv(
+                    yesterdayString+'.csv',
+                    //data
+                    data.data
+                )
+                .then(function(result){
+                    logger.info("process_success: writeData");
+                    console.log("process_success: writeData");
+
+                    //SEND_MAIL
+                    services.report(yesterdayString)
+                    .then(function(result) {
+                        logger.info("service_success: sendMail");
+                        console.log("service_success: sendMail");
+
+                        return res.status(200).send({
+                            message: "all_process_success",
+                        });
+                    })
+                    .catch(function(err) {
+                        logger.info("service_error: sendMail #ERROR: "+err);
+
+                        console.log(err);
+                        console.log("error_send_mail");
+
+                        return res.status(502).send({
+                            message: "error_send_mail",
+                        });
+                    });
+
+                })
+                .catch(function(err) {
+                    logger.info("process_error: writeData | #ERROR: "+err);
+                    console.log("process_error: writeData | #ERROR: "+err);
+
+                    return res.status(200).send({
+                        message: "error_write_file",
+                    });
+                });
+            })
+            .catch(function(err) {
+                logger.info("service_error: getToken | #ERROR: "+err);
+                console.log("service_error: getToken | #ERROR: "+err);
+
+                return res.status(502).send({
+                    message: "get_token_error",
+                });
+            });
+
+        // // ### ---------------------------------------
+        // })
+        // .catch(function(err) {
+        //     logger.info("service_error: getToken | #ERROR: "+err);
+        //     console.log("service_error: getToken | #ERROR: "+err);
+
+        //     return res.status(502).send({
+        //         message: "get_token_error",
+        //     });
+        // });
+
+    },
+
+    listFilesCSV: (req, res) => {
+
+        const list_files = [];
+
+        fs.readdirSync('./reports/').forEach(file => {
+            list_files.push(file);
+            console.log(file);
+        });
 
         return res.status(200).send({
-            message: "success",
-            data: calculate(dataCoins,req.query.amount)
+            message: "list_files_success",
+            files: list_files
         });
+
     }
+
 };
 
 module.exports = controller;
