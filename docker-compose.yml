@@ -1,0 +1,11 @@
+version: '3'
+services:
+  api-rest:
+    container_name: api-rest
+    build: .
+    command: npm start
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3700:3700"

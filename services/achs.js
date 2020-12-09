@@ -20,9 +20,6 @@ function httpRequest(params,data=undefined) {
           res.on('data', function(chunk) {
               body.push(chunk);
           });
-          // res.on('data', d => {
-          //   process.stdout.write(d)
-          // })
 
           // resolve on end
           res.on('end', function() {
@@ -142,6 +139,11 @@ async function report(date){
 
 }
 
+module.exports.getData = getData;
+module.exports.getToken = getToken;
+module.exports.report = report;
+
+//TEST ----------------------------------------
 async function test(){
   var options = {
     protocol: "https:",
@@ -158,27 +160,5 @@ async function test(){
   return httpRequest(options);
 }
 
-async function test_post(){
-  var options = {
-    protocol: "https:",
-    timeout: 0,
-    host: 'www.binance.com',
-    path: '/exchange-api/v1/public/asset-service/product/get-products',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    //json:true
-  };
-  return httpRequest(options);
-}
-
-module.exports.getData = getData;
-module.exports.getToken = getToken;
-module.exports.report = report;
-
-//---------------------------------------------
 module.exports.test = test;
-module.exports.test_post = test_post;
 //---------------------------------------------
