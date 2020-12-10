@@ -10,7 +10,7 @@ var coreOptions = {
   siteUrl: properties.get('sharepoint.app.url'),
   // notification: true,
   checkin: true,
-  checkinType: 1
+  checkinType: 1   //# 0 - minor | 1 - major | 2 - overwrite
 };
 
 var creds = {
