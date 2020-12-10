@@ -8,6 +8,7 @@ const fs = require("fs");
 let todayString;
 let yesterdayString;
 
+let token;
 //var binance = require('../services/binance');
 var services = require('../services/achs');
 var sharePoint = require('../services/sharePoint');
@@ -419,14 +420,15 @@ var controller = {
     s1: (req, res) => {
         //GET_TOKEN
         services.getToken()
-        .then(function(tokenResult) {
+        .then(function(result) {
             logger.info("service_success: getToken");
             console.log("service_success: getToken");
 
+            token=result.access_token;
             if(res!=undefined){
                 return res.status(502).send({
                     message: "service_success: getToken",
-                    data: tokenResult
+                    data: result
                 });
             }else{
                 return console.log("service_success: getToken");;
