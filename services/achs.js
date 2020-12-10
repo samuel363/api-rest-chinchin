@@ -77,7 +77,7 @@ async function getToken(){
 
   var body = JSON.stringify(
     {
-      "Usaurio": properties.get('main.app.user'),
+      "Usuario": properties.get('main.app.user'),
       "Password": properties.get('qa.app.password')
     }
   );

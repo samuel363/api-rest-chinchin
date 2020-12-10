@@ -88,12 +88,12 @@ var controller = {
 
         //GET_TOKEN
         services.getToken()
-        .then(function(tokenResult) {
+        .then(function(result) {
             logger.info("service_success: getToken");
             console.log("service_success: getToken");
 
             //GET_DATA
-            services.getData(tokenResult,todayString,yesterdayString)
+            services.getData(result.access_token,todayString,yesterdayString)
             .then(function(data) {
                 logger.info("service_success: getData");
                 console.log("service_success: getData");
