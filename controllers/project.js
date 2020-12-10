@@ -7,6 +7,7 @@ const fs = require("fs");
 
 let todayString;
 let yesterdayString;
+let dataAmount;
 
 var services = require('../services/achs');
 var sharePoint = require('../services/sharePoint');
@@ -87,12 +88,14 @@ var controller = {
             console.log("service_success: getToken");
 
             //GET_DATA
+            dataAmount=0;
             services.getData(result.access_token, todayString, yesterdayString)
             .then(function(data) {
+                dataAmount=data.length;
                 logger.info("service_success: getData");
-                logger.info("data_amount: "+data.length);
+                logger.info("data_amount: "+dataAmount);
                 console.log("service_success: getData");
-                console.log("data_amount: "+data.length);
+                console.log("data_amount: "+dataAmount);
                 //WRITE_CSV
                 writeToCsv(
                     yesterdayString+'.csv',
@@ -126,7 +129,7 @@ var controller = {
                             console.log("service_success: sharePoint_saveFile");
 
                             //SEND_MAIL
-                            services.report(yesterdayString)
+                            services.report(yesterdayString,dataAmount)
                             .then(function(result) {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
@@ -228,13 +231,15 @@ var controller = {
         //     console.log("service_success: getToken");
 
             //GET_DATA
+            dataAmount=0;
             // services.getData(result.access_token, todayString, yesterdayString)
             services.test()
             .then(function(data) {
+                dataAmount=data.data.length;
                 logger.info("service_success: getData");
-                logger.info("data_amount: "+data.data.length);
+                logger.info("data_amount: "+dataAmount);
                 console.log("service_success: getData");
-                console.log("data_amount: "+data.data.length);
+                console.log("data_amount: "+dataAmount);
                 //WRITE_CSV
                 writeToCsv(
                     yesterdayString+'.csv',
@@ -268,7 +273,7 @@ var controller = {
                             console.log("service_success: sharePoint_saveFile");
 
                             //SEND_MAIL
-                            services.report(yesterdayString)
+                            services.report(yesterdayString,dataAmount)
                             .then(function(result) {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");

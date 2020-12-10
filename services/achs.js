@@ -103,12 +103,20 @@ async function getToken(){
 
 }
 
-async function report(date){
+async function report(date,dataAmount){
 
   const MAIL_HTML = '\
   <html> \
     <body> \
-        Se ha generado un archivo CSV con el reporte del dia '+date+' \
+        <p> \
+          Se informa que se ha generado el reporte del dia '+date+', con un total de '+dataAmount+' registros.\
+        </p> \
+        <br> \
+        <p> \
+          <a href="https://achs.sharepoint.com/teams/PactosdeTeletrabajo/_layouts/15/RecycleBin.aspx?view=5"> \
+            SharePoint - Pactos de Teletrabajo \
+          </a> \
+        </p> \
     </body> \
   </html>';
 
