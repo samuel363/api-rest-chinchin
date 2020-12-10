@@ -109,7 +109,7 @@ async function report(date,dataAmount){
   <html> \
     <body> \
         <p> \
-          Se informa que se ha generado el reporte del dia '+date+', con un total de '+dataAmount+' registros.\
+          Se informa que se ha generado el reporte del día '+date+', con un total de '+dataAmount+' registros.\
         </p> \
         <br> \
         <p> \
@@ -122,7 +122,7 @@ async function report(date,dataAmount){
 
   var body = JSON.stringify({
     "Destinatario": properties.get('report.main.app.emails'),
-    'Asunto': "Reporte del dia "+date,
+    'Asunto': "Reporte del día "+date,
     "Mensaje": MAIL_HTML
   });
 
