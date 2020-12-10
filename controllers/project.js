@@ -467,7 +467,9 @@ var controller = {
             //     todayString:todayString,
             //     yesterdayString:yesterdayString,
             // });
-            
+            todayString = "20-11-2020";
+            yesterdayString = "30-11-2020";
+
             //GET_DATA
             services.getData(token,todayString,yesterdayString)
             .then(function(data) {
