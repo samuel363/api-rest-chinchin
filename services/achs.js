@@ -105,25 +105,24 @@ async function getToken(){
 
 async function report(date,dataAmount){
 
-  const MAIL_HTML = '\
-  <html> \
-    <body> \
-        <p> \
-          Se informa que se ha generado el reporte del día '+date+', con un total de '+dataAmount+' registros.\
-        </p> \
-        <br> \
-        <p> \
-          <a href="https://achs.sharepoint.com/teams/PactosdeTeletrabajo/_layouts/15/RecycleBin.aspx?view=5"> \
-            SharePoint - Pactos de Teletrabajo \
-          </a> \
-        </p> \
-    </body> \
-  </html>';
+  const MAIL_HTML = `
+  <html>
+    <body>
+        <p>
+          Se informa que se ha generado el reporte del dia ${date}, con un total de ${dataAmount} registros.
+        </p>
+        <p>
+          <a href="https://achs.sharepoint.com/teams/PactosdeTeletrabajo/Pactos_Teletrabajo/Forms/AllItems.aspx">
+            SharePoint - Pactos de Teletrabajo
+          </a>
+        </p>
+    </body>
+  </html>`;
 
   var body = JSON.stringify({
-    "Destinatario": properties.get('report.main.app.emails'),
-    'Asunto': "Reporte del día "+date,
-    "Mensaje": MAIL_HTML
+    'Destinatario': properties.get('report.main.app.emails'),
+    'Asunto': 'Reporte del dia '+date,
+    'Mensaje': MAIL_HTML
   });
 
   var options = {
