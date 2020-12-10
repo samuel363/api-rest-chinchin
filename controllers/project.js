@@ -461,12 +461,12 @@ var controller = {
                                 (yesterday.getMonth()+1) + '-' +
                                 yesterday.getFullYear();
 
-            return res.status(502).send({
-                message: "test",
-                token:token,
-                todayString:todayString,
-                yesterdayString:yesterdayString,
-            });
+            // return res.status(502).send({
+            //     message: "test",
+            //     token:token,
+            //     todayString:todayString,
+            //     yesterdayString:yesterdayString,
+            // });
             
             //GET_DATA
             services.getData(token,todayString,yesterdayString)
