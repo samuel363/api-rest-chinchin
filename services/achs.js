@@ -55,15 +55,16 @@ async function getData(token,dateFrom,dateTo){
   var options = {
     protocol: properties.get('main.app.protocol')+':',
     timeout: 0,
-    host: properties.get('qa.app.host'),
+    //host: properties.get('qa.app.host'),
     path: properties.get('main.app.data.path')+"/"+dateFrom+"/"+dateTo,
+    hostname: properties.get('qa.app.host'),
+    port: 443,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Authorization': token
+      'Authorization': ' Bearer '+token
     },
-    //json:true
   };
 
   console.log("Loading Data! ...");
