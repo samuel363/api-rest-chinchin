@@ -450,9 +450,19 @@ var controller = {
         });
     },
     s2: (req, res) => {
+            const today = new Date();
+            const yesterday = new Date();
+            yesterday.setDate( today.getDate() - 1);
+
+            todayString = today.getDate() + '-' +
+                            (today.getMonth()+1) + '-' +
+                            today.getFullYear();
+            yesterdayString = yesterday.getDate() + '-' +
+                                (yesterday.getMonth()+1) + '-' +
+                                yesterday.getFullYear();
 
             //GET_DATA
-            services.getData(tokenResult,todayString,yesterdayString)
+            services.getData(token,todayString,yesterdayString)
             .then(function(data) {
                 logger.info("service_success: getData");
                 console.log("service_success: getData");
