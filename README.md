@@ -22,7 +22,7 @@ docker start <CONTAINTER_ID>
 ```
 ## Docker-Compose
 ```
-docker-compose  -f docker-compose.yml up -d
+docker-compose -f docker-compose.yml up -d
 ```
 
 ### Utils:
@@ -32,5 +32,5 @@ docker exec -it api-rest bash
 ```
 #### Logs:
 ```
-docker logs -f --tail 10 api-rest
+docker logs -f --tail 100 api-rest
 ```
