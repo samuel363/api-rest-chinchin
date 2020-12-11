@@ -57,8 +57,7 @@ var controller = {
         const list_files = [];
 
         fs.readdirSync('./reports/').forEach(file => {
-            list_files.push(file);
-            console.log(file);
+            if (file != '.gitignore') list_files.push(file);
         });
 
         return res.status(200).send({

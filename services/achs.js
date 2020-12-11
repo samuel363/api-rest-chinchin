@@ -53,11 +53,11 @@ function httpRequest(params,data=undefined) {
 async function getData(token,dateFrom,dateTo){
 
   var options = {
-    protocol: properties.get('main.app.protocol')+':',
+    protocol: properties.get('services.app.protocol')+':',
     timeout: 0,
-    //host: properties.get('qa.app.host'),
-    path: properties.get('main.app.data.path')+"/"+dateFrom+"/"+dateTo,
-    hostname: properties.get('qa.app.host'),
+    //host: properties.get('services.app.host'),
+    path: properties.get('services.app.data.path')+"/"+dateFrom+"/"+dateTo,
+    hostname: properties.get('services.app.host'),
     port: 443,
     method: 'GET',
     headers: {
@@ -78,16 +78,16 @@ async function getToken(){
 
   var body = JSON.stringify(
     {
-      "Usuario": properties.get('main.app.user'),
-      "Password": properties.get('qa.app.password')
+      "Usuario": properties.get('services.app.user'),
+      "Password": properties.get('services.app.password')
     }
   );
 
   var options = {
-    protocol: properties.get('main.app.protocol')+':',
+    protocol: properties.get('services.app.protocol')+':',
     timeout: 0,
-    host: properties.get('qa.app.host'),
-    path: properties.get('main.app.token.path'),
+    host: properties.get('services.app.host'),
+    path: properties.get('services.app.token.path'),
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ async function report(date,dataAmount){
   });
 
   var options = {
-    protocol: properties.get('main.app.protocol')+':',
+    protocol: properties.get('services.app.protocol')+':',
     timeout: 0,
     host: properties.get('report.mail.host'),
     port: properties.get('report.mail.port'),
