@@ -21,6 +21,7 @@ var creds = {
 
 async function saveFile(folderName, fileName, fileContent){
 
+  if(fileContent.length === 0) fileContent = " ";
   var fileOptions = {
     folder: folderName,
     fileName: fileName,
@@ -28,7 +29,6 @@ async function saveFile(folderName, fileName, fileContent){
   };
 
   return spsave(coreOptions, creds, fileOptions)
-
 }
 
 module.exports.saveFile = saveFile;
