@@ -13,5 +13,7 @@ router.get('/run-service',ProjectController.runService);
 
 //TEST
 router.get('/test-run-service',ProjectController.testRunService);
+router.get('/test-2-run-service',ProjectController.test2RunService);
+
 
 module.exports = router;
