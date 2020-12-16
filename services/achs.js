@@ -23,7 +23,6 @@ function httpRequest(params,data=undefined) {
 
           // resolve on end
           res.on('end', function() {
-              //console.log("---end--")
               try {
                   if (body.length) body = JSON.parse( Buffer.concat(body).toString() );
               } catch(e) {
@@ -35,7 +34,6 @@ function httpRequest(params,data=undefined) {
       // reject on request error
       req.on('error', function(err) {
           // This is not a "Second reject", just a different sort of failure
-          //console.log("---error--")
           reject(err);
       });
       // IMPORTANT
@@ -55,7 +53,6 @@ async function getData(token,dateFrom,dateTo){
   var options = {
     protocol: properties.get('services.app.protocol')+':',
     timeout: 0,
-    //host: properties.get('services.app.host'),
     path: properties.get('services.app.data.path')+"/"+dateFrom+"/"+dateTo,
     hostname: properties.get('services.app.host'),
     port: 443,
@@ -93,10 +90,6 @@ async function getToken(){
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    // body: {
-    //   "Usaurio": "achs",
-    //   "Password": "bdqXGynh8V"
-    // }
   };
 
   return httpRequest(options,body);
@@ -137,11 +130,7 @@ async function report(date,dataAmount){
       'Content-Length': body.length,
       'Accept': 'application/json',
     },
-    // json: true,
-    // body: body
   };
-
-  // console.log(options);
 
   return httpRequest(options,body);
 

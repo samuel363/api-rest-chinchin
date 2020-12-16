@@ -4,13 +4,17 @@ const ObjectsToCsv = require('objects-to-csv');
 
 const logger = require('./logs');
 const fs = require("fs");
+const propertiesReader = require('properties-reader');
+var properties = propertiesReader('./application.properties', {writer: { saveSections: true }});
 
 let todayString;
 let yesterdayString;
 let dataAmount;
+let resultSuccess;
 
 var services = require('../services/achs');
 var sharePoint = require('../services/sharePoint');
+var sleep = require('sleep-promise');
 
 const writeToCsv = async (fileName,data) => {
     const csv = new ObjectsToCsv(data);
@@ -34,7 +38,7 @@ function shareLogFile(){
             console.log("service_success: sharePoint_saveLogFile");
         })
         .catch(function(err) {
-            logger.info("service_error: sharePoint_saveLogFile #ERROR: "+err);
+            logger.error("service_error: sharePoint_saveLogFile #ERROR: "+err);
             console.log("error_read_log_file_to_share");
             console.log(err);
         });
@@ -44,10 +48,11 @@ function shareLogFile(){
 var controller = {
     home: function (req,res){
         return  res.status(200).send(`
-            <h1> Bienvenidos al REST API </h1>
+            <h1> Bienvenido al REST API - Pactos de Teletrabajo </h1>
             <ul>
-                <li> /api/run-service               </li>
-                <li> /api/list-files                     </li>
+                <li> /api/run-service  </li>
+                <li> /api/run-service-by-range?from=dd-mm-yyyy&to=dd-mm-yyyy  </li>
+                <li> /api/list-files  </li>
                 <li> /api/download?date=dd-mm-yyyy  </li>
             </ul>
         `);
@@ -67,7 +72,7 @@ var controller = {
 
     },
     download: (req, res) => res.download('./reports/'+req.query.date+'.csv'),
-    runService: (req, res) => {
+    runService: async (req, res) => {
 
         const today = new Date();
         const yesterday = new Date();
@@ -107,7 +112,7 @@ var controller = {
                     // READ_FILE_TO_SHARE
                     fs.readFile('./reports/'+yesterdayString+'.csv', 'utf8', function (err,data) {
                         if (err) {
-                            logger.info("service_error: readFileToShare: 'application.log' #ERROR: "+err);
+                            logger.info("service_error: readFileToShare: 'application.log' | #ERROR: "+err);
                             console.log(err);
                             shareLogFile();
                             if(res!=undefined){
@@ -115,7 +120,7 @@ var controller = {
                                     message: "error_read_file_to_share",
                                 });
                             }else{
-                                return console.log("error_read_file_to_share");;
+                                return console.log("error_read_file_to_share");
                             }
                         }
 
@@ -133,6 +138,7 @@ var controller = {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
                                 shareLogFile();
+                                resultSuccess = true;
                                 if(res!=undefined){
                                     return res.status(200).send({
                                         message: "all_process_success",
@@ -142,7 +148,7 @@ var controller = {
                                 }
                             })
                             .catch(function(err) {
-                                logger.info("service_error: sendMail #ERROR: "+err);
+                                logger.error("service_error: sendMail | "+err);
                                 console.log(err);
                                 shareLogFile();
                                 if(res!=undefined){
@@ -150,14 +156,14 @@ var controller = {
                                         message: "error_send_mail",
                                     });
                                 }else{
-                                    return console.log("error_send_mail");;
+                                    return console.log("error_send_mail");
                                 }
                             });
                         })
                         .catch(function(err) {
-                            logger.info("service_error: sharePoint_saveFile #ERROR: "+err);
-                            console.log(err);
+                            logger.error("service_error: sharePoint_saveFile | Error: "+err);
                             console.log("error_sharePoint_save_file");
+                            console.log(err);
                             shareLogFile();
                             if(res!=undefined){
                                 return res.status(502).send({
@@ -171,46 +177,48 @@ var controller = {
 
                 })
                 .catch(function(err) {
-                    logger.info("process_error: writeData | #ERROR: "+err);
-                    console.log("process_error: writeData | #ERROR: "+err);
+                    logger.info("process_error: writeData | Error: "+err);
+                    console.error("process_error: writeData | Error: "+err);
                     shareLogFile();
                     if(res!=undefined){
                         return res.status(502).send({
                             message: "error_write_file",
                         });
                     }else{
-                        return console.log("error_write_file");;
+                        return console.log("error_write_file");
                     }
                 });
             })
             .catch(function(err) {
-                logger.info("service_error: getData | #ERROR: "+err);
-                console.log("service_error: getData | #ERROR: "+err);
+                logger.error("service_error: getData | "+err);
+                console.log("service_error: getData | "+err);
                 shareLogFile();
                 if(res!=undefined){
                     return res.status(502).send({
                         message: "get_data_error",
                     });
                 }else{
-                    return console.log("get_data_error");;
+                    return console.log("get_data_error");
                 }
             });
         })
         .catch(function(err) {
-            logger.info("service_error: getToken | #ERROR: "+err);
-            console.log("service_error: getToken | #ERROR: "+err);
+            logger.info("service_error: getToken | "+err);
+            console.log("service_error: getToken | "+err);
             shareLogFile();
             if(res!=undefined){
                 return res.status(502).send({
                     message: "get_token_error",
                 });
             }else{
-                return console.log("get_token_error");;
+                return console.log("get_token_error");
             }
         });
 
     },
-    testRunService: (req, res) => {
+    testRunService: async (req, res, i=3) => {
+        if (i<3) return console.log("testRunService i:"+i);
+        console.log("testRunService i:"+i);
 
         const today = new Date();
         const yesterday = new Date();
@@ -251,7 +259,7 @@ var controller = {
                     // READ_FILE_TO_SHARE
                     fs.readFile('./reports/'+yesterdayString+'.csv', 'utf8', function (err,data) {
                         if (err) {
-                            logger.info("service_error: readFileToShare: 'application.log' #ERROR: "+err);
+                            logger.info("service_error: readFileToShare: 'application.log' | #ERROR: "+err);
                             console.log(err);
                             shareLogFile();
                             if(res!=undefined){
@@ -259,7 +267,7 @@ var controller = {
                                     message: "error_read_file_to_share",
                                 });
                             }else{
-                                return console.log("error_read_file_to_share");;
+                                return console.log("error_read_file_to_share");
                             }
                         }
 
@@ -277,6 +285,8 @@ var controller = {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
                                 shareLogFile();
+                                resultSuccess = true;
+                                console.log('---> resultSuccess :'+resultSuccess);
                                 if(res!=undefined){
                                     return res.status(200).send({
                                         message: "all_process_success",
@@ -286,7 +296,7 @@ var controller = {
                                 }
                             })
                             .catch(function(err) {
-                                logger.info("service_error: sendMail #ERROR: "+err);
+                                logger.error("service_error: sendMail | "+err);
                                 console.log(err);
                                 shareLogFile();
                                 if(res!=undefined){
@@ -294,14 +304,14 @@ var controller = {
                                         message: "error_send_mail",
                                     });
                                 }else{
-                                    return console.log("error_send_mail");;
+                                    return console.log("error_send_mail");
                                 }
                             });
                         })
                         .catch(function(err) {
-                            logger.info("service_error: sharePoint_saveFile #ERROR: "+err);
-                            console.log(err);
+                            logger.error("service_error: sharePoint_saveFile | Error: "+err);
                             console.log("error_sharePoint_save_file");
+                            console.log(err);
                             shareLogFile();
                             if(res!=undefined){
                                 return res.status(502).send({
@@ -315,60 +325,49 @@ var controller = {
 
                 })
                 .catch(function(err) {
-                    logger.info("process_error: writeData | #ERROR: "+err);
-                    console.log("process_error: writeData | #ERROR: "+err);
+                    logger.info("process_error: writeData | Error: "+err);
+                    console.error("process_error: writeData | Error: "+err);
                     shareLogFile();
                     if(res!=undefined){
                         return res.status(502).send({
                             message: "error_write_file",
                         });
                     }else{
-                        return console.log("error_write_file");;
+                        return console.log("error_write_file");
                     }
                 });
             })
             .catch(function(err) {
-                logger.info("service_error: getData | #ERROR: "+err);
-                console.log("service_error: getData | #ERROR: "+err);
+                logger.error("service_error: getData | "+err);
+                console.log("service_error: getData | "+err);
                 shareLogFile();
                 if(res!=undefined){
                     return res.status(502).send({
                         message: "get_data_error",
                     });
                 }else{
-                    return console.log("get_data_error");;
+                    return console.log("get_data_error");
                 }
             });
         // })
         // .catch(function(err) {
-        //     logger.info("service_error: getToken | #ERROR: "+err);
-        //     console.log("service_error: getToken | #ERROR: "+err);
+        //     logger.info("service_error: getToken | "+err);
+        //     console.log("service_error: getToken | "+err);
         //     shareLogFile();
         //     if(res!=undefined){
         //         return res.status(502).send({
         //             message: "get_token_error",
         //         });
         //     }else{
-        //         return console.log("get_token_error");;
+        //         return console.log("get_token_error");
         //     }
         // });
 
     },
-    test2RunService: (req, res) => {
+    runByRageDate: async (req, res) => {
 
-        const today = new Date();
-        const yesterday = new Date();
-        yesterday.setDate( today.getDate() - 1);
-
-        todayString = today.getDate() + '-' +
-                        (today.getMonth()+1) + '-' +
-                        today.getFullYear();
-        yesterdayString = yesterday.getDate() + '-' +
-                            (yesterday.getMonth()+1) + '-' +
-                            yesterday.getFullYear();
-
-        todayString = '20-11-2020';
-        yesterdayString = '30-11-2020';
+        todayString = req.query.from;
+        yesterdayString = req.query.to;
 
         //GET_TOKEN
         services.getToken()
@@ -387,17 +386,17 @@ var controller = {
                 console.log("data_amount: "+dataAmount);
                 //WRITE_CSV
                 writeToCsv(
-                    yesterdayString+'.csv',
+                    todayString+'_'+yesterdayString+'.csv',
                     data
                 )
                 .then(function(result){
-                    logger.info("process_success: writeData  | File: "+yesterdayString+".csv");
-                    console.log("process_success: writeData  | File: "+yesterdayString+".csv");
+                    logger.info("process_success: writeData  | File: "+todayString+'_'+yesterdayString+".csv");
+                    console.log("process_success: writeData  | File: "+todayString+'_'+yesterdayString+".csv");
 
                     // READ_FILE_TO_SHARE
-                    fs.readFile('./reports/'+yesterdayString+'.csv', 'utf8', function (err,data) {
+                    fs.readFile('./reports/'+todayString+'_'+yesterdayString+'.csv', 'utf8', function (err,data) {
                         if (err) {
-                            logger.info("service_error: readFileToShare: 'application.log' #ERROR: "+err);
+                            logger.info("service_error: readFileToShare: 'application.log' | #ERROR: "+err);
                             console.log(err);
                             shareLogFile();
                             if(res!=undefined){
@@ -405,24 +404,25 @@ var controller = {
                                     message: "error_read_file_to_share",
                                 });
                             }else{
-                                return console.log("error_read_file_to_share");;
+                                return console.log("error_read_file_to_share");
                             }
                         }
 
                         // SHARE_FILE
                         sharePoint.saveFile(
-                            'Pactos_Teletrabajo',yesterdayString+'.csv', data
+                            'Pactos_Teletrabajo',todayString+'_'+yesterdayString+'.csv', data
                         )
                         .then(function(result) {
                             logger.info("service_success: sharePoint_saveFile");
                             console.log("service_success: sharePoint_saveFile");
 
                             //SEND_MAIL
-                            services.report(yesterdayString,dataAmount)
+                            services.report(todayString+'_'+yesterdayString,dataAmount)
                             .then(function(result) {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
                                 shareLogFile();
+                                resultSuccess = true;
                                 if(res!=undefined){
                                     return res.status(200).send({
                                         message: "all_process_success",
@@ -432,7 +432,7 @@ var controller = {
                                 }
                             })
                             .catch(function(err) {
-                                logger.info("service_error: sendMail #ERROR: "+err);
+                                logger.error("service_error: sendMail | "+err);
                                 console.log(err);
                                 shareLogFile();
                                 if(res!=undefined){
@@ -440,14 +440,14 @@ var controller = {
                                         message: "error_send_mail",
                                     });
                                 }else{
-                                    return console.log("error_send_mail");;
+                                    return console.log("error_send_mail");
                                 }
                             });
                         })
                         .catch(function(err) {
-                            logger.info("service_error: sharePoint_saveFile #ERROR: "+err);
-                            console.log(err);
+                            logger.error("service_error: sharePoint_saveFile | Error: "+err);
                             console.log("error_sharePoint_save_file");
+                            console.log(err);
                             shareLogFile();
                             if(res!=undefined){
                                 return res.status(502).send({
@@ -461,46 +461,72 @@ var controller = {
 
                 })
                 .catch(function(err) {
-                    logger.info("process_error: writeData | #ERROR: "+err);
-                    console.log("process_error: writeData | #ERROR: "+err);
+                    logger.info("process_error: writeData | Error: "+err);
+                    console.error("process_error: writeData | Error: "+err);
                     shareLogFile();
                     if(res!=undefined){
                         return res.status(502).send({
                             message: "error_write_file",
                         });
                     }else{
-                        return console.log("error_write_file");;
+                        return console.log("error_write_file");
                     }
                 });
             })
             .catch(function(err) {
-                logger.info("service_error: getData | #ERROR: "+err);
-                console.log("service_error: getData | #ERROR: "+err);
+                logger.error("service_error: getData | "+err);
+                console.log("service_error: getData | "+err);
                 shareLogFile();
                 if(res!=undefined){
                     return res.status(502).send({
                         message: "get_data_error",
                     });
                 }else{
-                    return console.log("get_data_error");;
+                    return console.log("get_data_error");
                 }
             });
         })
         .catch(function(err) {
-            logger.info("service_error: getToken | #ERROR: "+err);
-            console.log("service_error: getToken | #ERROR: "+err);
+            logger.info("service_error: getToken | "+err);
+            console.log("service_error: getToken | "+err);
             shareLogFile();
             if(res!=undefined){
                 return res.status(502).send({
                     message: "get_token_error",
                 });
             }else{
-                return console.log("get_token_error");;
+                return console.log("get_token_error");
             }
         });
 
     },
+    serviceSuccessLoop: async (iteration, req, res) => {
+        console.log('Execution attempt report number '+iteration);
+        logger.info('Execution attempt report number '+iteration);
 
+        //controller.testRunService(req, res, iteration)
+        controller.runService(req, res)
+        .then((result)=>{
+            console.log('result :'+result);
+            console.log('---> resultSuccess :'+resultSuccess);
+            console.log('===>> IF :'+(iteration >= 5 || resultSuccess));
+            if (iteration >= 5 || resultSuccess){
+                return result;
+            }else{
+                logger.info('waiting 30 minutes ...');
+                console.log('waiting 30 minutes ...');
+                sleep(properties.get('main.app.time.sleep')).then(function() {
+                    if (!(iteration >= 5 || resultSuccess)) return controller.serviceSuccessLoop(iteration+1,req,res);
+                });
+            }
+        })
+    },
+    initialRunService: (req, res) => {
+        console.log('Initial Run Service..');
+        logger.info('Initial Run Service..');
+        resultSuccess=false;
+        return controller.serviceSuccessLoop(1,req,res);
+    },
 };
 
 module.exports = controller;

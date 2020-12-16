@@ -9,11 +9,10 @@ var router = express.Router();
 router.get('/',ProjectController.home)
 router.get('/list-files',ProjectController.listFilesCSV);
 router.get('/download',ProjectController.download);
-router.get('/run-service',ProjectController.runService);
+router.get('/run-service',ProjectController.initialRunService);
+router.get('/run-service-by-range',ProjectController.runByRageDate);
 
 //TEST
 router.get('/test-run-service',ProjectController.testRunService);
-router.get('/test-2-run-service',ProjectController.test2RunService);
-
 
 module.exports = router;
