@@ -386,15 +386,15 @@ var controller = {
                 console.log("data_amount: "+dataAmount);
                 //WRITE_CSV
                 writeToCsv(
-                    todayString+'_'+yesterdayString+'.csv',
+                    yesterdayString+'_'+todayString+'.csv',
                     data
                 )
                 .then(function(result){
-                    logger.info("process_success: writeData  | File: "+todayString+'_'+yesterdayString+".csv");
-                    console.log("process_success: writeData  | File: "+todayString+'_'+yesterdayString+".csv");
+                    logger.info("process_success: writeData  | File: "+yesterdayString+'_'+todayString+".csv");
+                    console.log("process_success: writeData  | File: "+yesterdayString+'_'+todayString+".csv");
 
                     // READ_FILE_TO_SHARE
-                    fs.readFile('./reports/'+todayString+'_'+yesterdayString+'.csv', 'utf8', function (err,data) {
+                    fs.readFile('./reports/'+yesterdayString+'_'+todayString+'.csv', 'utf8', function (err,data) {
                         if (err) {
                             logger.info("service_error: readFileToShare: 'application.log' | #ERROR: "+err);
                             console.log(err);
@@ -410,14 +410,14 @@ var controller = {
 
                         // SHARE_FILE
                         sharePoint.saveFile(
-                            'Pactos_Teletrabajo',todayString+'_'+yesterdayString+'.csv', data
+                            'Pactos_Teletrabajo',yesterdayString+'_'+todayString+'.csv', data
                         )
                         .then(function(result) {
                             logger.info("service_success: sharePoint_saveFile");
                             console.log("service_success: sharePoint_saveFile");
 
                             //SEND_MAIL
-                            services.report(todayString+'_'+yesterdayString,dataAmount)
+                            services.report(yesterdayString+'_'+todayString,dataAmount)
                             .then(function(result) {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
