@@ -93,7 +93,7 @@ var controller = {
 
             //GET_DATA
             dataAmount=0;
-            services.getData(result.access_token, todayString, yesterdayString)
+            services.getData(result.access_token, yesterdayString, todayString)
             .then(function(data) {
                 dataAmount=data.length;
                 logger.info("service_success: getData");
@@ -377,7 +377,7 @@ var controller = {
 
             //GET_DATA
             dataAmount=0;
-            services.getData(result.access_token, todayString, yesterdayString)
+            services.getData(result.access_token, yesterdayString, todayString)
             .then(function(data) {
                 dataAmount=data.length;
                 logger.info("service_success: getData");
