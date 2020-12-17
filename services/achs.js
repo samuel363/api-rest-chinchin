@@ -49,7 +49,9 @@ function httpRequest(params,data=undefined) {
 }
 
 async function getData(token,dateFrom,dateTo){
-
+  console.log("---------");
+  console.log(properties.get('services.app.data.path')+"/"+dateFrom+"/"+dateTo);
+  console.log("---------");
   var options = {
     protocol: properties.get('services.app.protocol')+':',
     timeout: 0,
