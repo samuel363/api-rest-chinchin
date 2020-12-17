@@ -366,8 +366,8 @@ var controller = {
     },
     runByRageDate: async (req, res) => {
 
-        todayString = req.query.from;
-        yesterdayString = req.query.to;
+        todayString = req.query.to;
+        yesterdayString = req.query.from;
 
         //GET_TOKEN
         services.getToken()
