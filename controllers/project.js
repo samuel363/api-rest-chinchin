@@ -1,7 +1,5 @@
 'use strict'
 
-const ObjectsToCsv = require('objects-to-csv');
-
 const logger = require('./logs');
 const fs = require("fs");
 const propertiesReader = require('properties-reader');
@@ -15,11 +13,21 @@ let resultSuccess;
 var services = require('../services/achs');
 var sharePoint = require('../services/sharePoint');
 var sleep = require('sleep-promise');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
-const writeToCsv = async (fileName,data) => {
-    const csv = new ObjectsToCsv(data);
-  // Save to file:
-    await csv.toDisk('./reports/'+fileName);
+const writeToCsv =  async (fileName,data) => {
+    const csvWriter = createCsvWriter({
+      path: './reports/'+fileName,
+    //   fieldDelimiter: '',
+      alwaysQuote: true,
+      header:  data.length > 0 ? Object.keys(data[0]).map(
+        (x) => { 
+            return {id: x, title: x.toUpperCase()}
+        }) : []
+    });
+
+    await csvWriter
+      .writeRecords(data)
 }
 
 function shareLogFile(){

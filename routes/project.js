@@ -14,5 +14,6 @@ router.get('/run-service-by-range',ProjectController.runByRageDate);
 
 //TEST
 router.get('/test-run-service',ProjectController.testRunService);
+// router.get('/test',ProjectController.test);
 
 module.exports = router;
