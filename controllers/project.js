@@ -30,7 +30,11 @@ const writeToCsv =  async (fileName,data) => {
       .writeRecords(data)
 }
 
-function shareLogFile(){
+function shareLogFile(finish=false){
+    if(finish){
+        console.log('Finished Run Service !..');
+        logger.info('Finished Run Service !..');
+    }
     fs.readFile('./logs/application.log', 'utf8', function (err,data) {
         if (err) {
             logger.info("service_error: readLogFileToShare: 'application.log' #ERROR: "+err);
@@ -145,7 +149,7 @@ var controller = {
                             .then(function(result) {
                                 logger.info("service_success: sendMail");
                                 console.log("service_success: sendMail");
-                                shareLogFile();
+                                shareLogFile(true);
                                 resultSuccess = true;
                                 if(res!=undefined){
                                     return res.status(200).send({
