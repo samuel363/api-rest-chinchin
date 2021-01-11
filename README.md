@@ -34,3 +34,7 @@ docker exec -it api-rest bash
 ```
 docker logs -f --tail 100 api-rest
 ```
+
+
+===============================================
+# Ver documentacion en - /documentos
